@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conversation Arrangement Quiz</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            color: #1f2937;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        .question-card {
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+        .question-card:nth-child(1) { animation-delay: 0.1s; }
+        .question-card:nth-child(2) { animation-delay: 0.2s; }
+        .question-card:nth-child(3) { animation-delay: 0.3s; }
+        .question-card:nth-child(4) { animation-delay: 0.4s; }
+        .question-card:nth-child(5) { animation-delay: 0.5s; }
+        .question-card:nth-child(6) { animation-delay: 0.6s; }
+        .question-card:nth-child(7) { animation-delay: 0.7s; }
+        .question-card:nth-child(8) { animation-delay: 0.8s; }
+        .question-card:nth-child(9) { animation-delay: 0.9s; }
+        .question-card:nth-child(10) { animation-delay: 1.0s; }
+        .question-card:nth-child(11) { animation-delay: 1.1s; }
+        .question-card:nth-child(12) { animation-delay: 1.2s; }
+        .question-card:nth-child(13) { animation-delay: 1.3s; }
+        .question-card:nth-child(14) { animation-delay: 1.4s; }
+        .question-card:nth-child(15) { animation-delay: 1.5s; }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .option {
+            padding: 0.75rem 1.25rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            border: 2px solid #e5e7eb;
+            font-weight: 500;
+        }
+        .option:hover {
+            background-color: #e5e7eb;
+        }
+        .selected {
+            background-color: #1d4ed8;
+            color: #ffffff;
+            border-color: #1d4ed8;
+        }
+        .correct {
+            background-color: #10b981 !important;
+            color: #ffffff !important;
+            border-color: #10b981 !important;
+        }
+        .incorrect {
+            background-color: #ef4444 !important;
+            color: #ffffff !important;
+            border-color: #ef4444 !important;
+        }
+        #submit-btn {
+            background-color: #1d4ed8;
+            color: #ffffff;
+            font-weight: bold;
+            padding: 1rem 2rem;
+            border-radius: 9999px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(29, 78, 216, 0.2);
+        }
+        #submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(29, 78, 216, 0.3);
+        }
+        #results {
+            background-color: #1f2937;
+            color: #ffffff;
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            opacity: 0;
+            transform: scale(0.9);
+            animation: popIn 0.5s ease-out forwards;
+            animation-delay: 0.5s;
+        }
+        @keyframes popIn {
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        /* Custom Modal */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            visibility: hidden;
+            opacity: 0;
+            transition: visibility 0s, opacity 0.3s;
+        }
+
+        .modal.active {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            text-align: center;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            transform: scale(0.9);
+            transition: transform 0.3s ease-out;
+        }
+
+        .modal.active .modal-content {
+            transform: scale(1);
+        }
+    </style>
+</head>
+<body class="bg-gray-100 p-8">
+
+    <div class="container mx-auto">
+        <h1 class="text-4xl font-bold text-center mb-10 text-gray-800">Conversation Arrangement Quiz</h1>
+        <p class="text-center text-lg mb-8 text-gray-600">
+            Instructions: The following sentences are part of a conversation. Read the sentences carefully and choose the option (A, B, C, or D) that presents the correct and logical order.
+        </p>
+
+        <div id="quiz-container">
+            <!-- Questions will be injected here by JavaScript -->
+        </div>
+
+        <div class="flex justify-center mt-8">
+            <button id="submit-btn" class="px-8 py-4 text-xl font-bold rounded-full shadow-lg hover:shadow-xl transition transform hover:-translate-y-1">Submit Quiz</button>
+        </div>
+
+        <div id="results" class="mt-10 hidden">
+            <h2 class="text-3xl font-bold mb-4">Quiz Results</h2>
+            <p id="score-text" class="text-5xl font-extrabold mb-4"></p>
+            <p class="text-lg">Review your answers below.</p>
+        </div>
+
+        <!-- Custom Modal -->
+        <div id="custom-modal" class="modal">
+            <div class="modal-content">
+                <p id="modal-text" class="text-gray-800 text-lg mb-6"></p>
+                <button id="close-modal-btn" class="bg-blue-600 text-white px-6 py-2 rounded-full font-bold hover:bg-blue-700 transition">OK</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            const quizData = [
+                {
+                    id: 1,
+                    instruction: "Arrange the following sentences into a logical conversation.",
+                    sentences: [
+                        "a. Laurie: Yes, I loved it. It was a really exciting and a bit frightening sport.",
+                        "b. Kirstie: Hi, Laurie. How are you? Tell me about your summer holiday!",
+                        "c. Kirstie: Really? That sounds like fun!",
+                        "d. Kirstie: Wow! That sounds great!",
+                        "e. Laurie: Well, for the first three weeks, I was at a summer camp in Cornwall.",
+                        "f. Laurie: Yes, it was. I learned a new sport - bodyboarding."
+                    ],
+                    options: {
+                        A: "b-e-c-f-d-a",
+                        B: "b-f-d-e-c-a",
+                        C: "a-c-e-b-f-d",
+                        D: "c-e-b-d-a-f"
+                    },
+                    correct: "A"
+                },
+                {
+                    id: 2,
+                    instruction: "Arrange the following sentences into a logical conversation.",
+                    sentences: [
+                        "a. Minh: Not bad. I have a big exam next week, though.",
+                        "b. Mai: What about? Is it math?",
+                        "c. Minh: No, it's for my English literature class. I need to read three books.",
+                        "d. Mai: Hi, Minh. How are you doing?",
+                        "e. Mai: Oh, that sounds difficult. Good luck!",
+                        "f. Minh: Thanks! I'll need it."
+                    ],
+                    options: {
+                        A: "d-a-b-c-e-f",
+                        B: "d-b-a-c-e-f",
+                        C: "a-d-b-c-f-e",
+                        D: "d-a-c-b-e-f"
+                    },
+                    correct: "A"
+                },
+                {
+                    id: 3,
+                    instruction: "Arrange the following sentences into a logical conversation.",
+                    sentences: [
+                        "a. Dad: What did you learn today?",
+                        "b. Alex: We learned about the solar system. It was really cool.",
+                        "c. Dad: That's great! Who is your science teacher this year?",
+                        "d. Alex: We have a new one, Mr. Jones. He's very funny.",
+                        "e. Dad: Hi, Alex. How was school?",
+                        "f. Alex: It was good, thanks."
+                    ],
+                    options: {
+                        A: "e-f-a-b-d-c",
+                        B: "e-f-b-a-c-d",
+                        C: "e-f-a-b-c-d",
+                        D: "a-e-f-b-c-d"
+                    },
+                    correct: "C"
+                },
+                {
+                    id: 4,
+                    instruction: "Arrange the following sentences into a logical conversation.",
+                    sentences: [
+                        "a. Sarah: Yes, I am. I've been practicing every day.",
+                        "b. Tom: Do you want to play a game?",
+                        "c. Sarah: That's a good idea. I can use some fresh air.",
+                        "d. Tom: No, I mean a computer game.",
+                        "e. Tom: I'm just playing soccer outside. Are you ready for the big tournament on Saturday?",
+                        "f. Sarah: What are you doing?"
+                    ],
+                    options: {
+                        A: "f-d-b-a-e-c",
+                        B: "f-b-d-a-e-c",
+                        C: "f-b-d-e-a-c",
+                        D: "f-b-a-d-e-c"
+                    },
+                    correct: "C"
+                },
+                {
+                    id: 5,
+                    instruction: "Arrange the following sentences into a logical conversation.",
+                    sentences: [
+                        "a. David: I think I'll go to the beach.",
+                        "b. Jane: What about the museum?",
+                        "c. David: No, I went there last month.",
+                        "d. Jane: It's a beautiful day. What should we do?",
+                        "e. Jane: The beach sounds like a great plan.",
+                        "f. David: Let's go then!"
+                    ],
+                    options: {
+                        A: "d-a-b-c-e-f",
+                        B: "d-b-a-c-e-f",
+                        C: "d-a-c-b-e-f",
+                        D: "a-d-b-c-e-f"
+                    },
+                    correct: "A"
+                },
+                {
+                    id: 6,
+                    instruction: "Arrange the following sentences into a logical conversation.",
+                    sentences: [
+                        "a. Receptionist: Good morning. How may I help you?",
+                        "b. Tourist: Yes, I would like to book a tour to Ha Long Bay.",
+                        "c. Receptionist: Certainly. For how many people?",
+                        "d. Tourist: Three, please.",
+                        "e. Receptionist: Good morning.",
+                        "f. Tourist: I'm looking for a tour."
+                    ],
+                    options: {
+                        A: "e-a-f-b-c-d",
+                        B: "e-f-a-b-c-d",
+                        C: "e-b-f-a-c-d",
+                        D: "e-a-b-f-c-d"
+                    },
+                    correct: "A"
+                },
+                {
+                    id: 7,
+                    instruction: "Arrange the following sentences into a logical conversation.",
+                    sentences: [
+                        "a. Student: Yes, I need some help with my research paper.",
+                        "b. Librarian: Sure. Which topic are you working on?",
+                        "c. Student: I'm writing about climate change and its effects on polar bears.",
+                        "d. Librarian: Hello. Can I help you?",
+                        "e. Student: I'm not sure where to find good books on this topic.",
+                        "f. Librarian: We have a great collection in the science section."
+                    ],
+                    options: {
+                        A: "d-a-b-c-e-f",
+                        B: "d-a-c-b-e-f",
+                        C: "d-a-b-e-c-f",
+                        D: "d-a-b-c-f-e"
+                    },
+                    correct: "A"
+                },
+                {
+                    id: 8,
+                    instruction: "Arrange the following sentences into a logical conversation.",
+                    sentences: [
+                        "a. Shopkeeper: It costs 250,000 VND.",
+                        "b. Customer: I want to buy this T-shirt.",
+                        "c. Shopkeeper: Anything else?",
+                        "d. Customer: No, thank you. I'll take it.",
+                        "e. Customer: How much is it?",
+                        "f. Shopkeeper: Here is your change."
+                    ],
+                    options: {
+                        A: "b-e-a-c-d-f",
+                        B: "b-a-e-c-d-f",
+                        C: "b-e-a-d-c-f",
+                        D: "b-e-a-c-f-d"
+                    },
+                    correct: "A"
+                },
+                {
+                    id: 9,
+                    instruction: "Arrange the following sentences into a logical conversation.",
+                    sentences: [
+                        "a. Anna: I can't find my keys. I think I left them in the car.",
+                        "b. Ben: Don't worry, I can drive you.",
+                        "c. Anna: Oh, thank you! That would be a great help.",
+                        "d. Ben: Are you ready to go?",
+                        "e. Anna: Yes, but I have a problem.",
+                        "f. Ben: Let me see if I have the spare ones."
+                    ],
+                    options: {
+                        A: "d-e-a-b-c-f",
+                        B: "d-e-a-f-b-c",
+                        C: "d-e-a-b-f-c",
+                        D: "d-e-a-c-b-f"
+                    },
+                    correct: "B"
+                },
+                {
+                    id: 10,
+                    instruction: "Arrange the following sentences into a logical conversation.",
+                    sentences: [
+                        "a. Waiter: Are you ready to order?",
+                        "b. Customer: I'll have the fish and chips, please.",
+                        "c. Waiter: And to drink?",
+                        "d. Customer: A glass of orange juice.",
+                        "e. Waiter: Good afternoon.",
+                        "f. Customer: Good afternoon."
+                    ],
+                    options: {
+                        A: "e-f-b-a-c-d",
+                        B: "e-f-a-b-c-d",
+                        C: "e-f-a-c-b-d",
+                        D: "a-e-f-b-c-d"
+                    },
+                    correct: "B"
+                },
+                {
+                    id: 11,
+                    instruction: "Arrange the following sentences into a logical conversation.",
+                    sentences: [
+                        "a. Peter: Can you help me with my homework?",
+                        "b. Mary: Of course. What do you need help with?",
+                        "c. Peter: It's a math problem. I don't understand it.",
+                        "d. Mary: Come over to my house after school. I'll explain it to you.",
+                        "e. Peter: Hi, Mary.",
+                        "f. Mary: Hi, Peter."
+                    ],
+                    options: {
+                        A: "e-f-a-c-b-d",
+                        B: "e-f-a-b-c-d",
+                        C: "e-f-b-a-c-d",
+                        D: "f-e-a-b-c-d"
+                    },
+                    correct: "B"
+                },
+                {
+                    id: 12,
+                    instruction: "Arrange the following sentences into a logical conversation.",
+                    sentences: [
+                        "a. Student: Yes, what is the best way to get to the museum?",
+                        "b. Officer: You can take bus number 7.",
+                        "c. Officer: Hello. Can I help you?",
+                        "d. Student: Thank you very much!",
+                        "e. Officer: It stops right in front of the museum.",
+                        "f. Student: Hello."
+                    ],
+                    options: {
+                        A: "f-c-a-b-e-d",
+                        B: "f-a-c-b-e-d",
+                        C: "f-c-a-e-b-d",
+                        D: "f-c-b-a-e-d"
+                    },
+                    correct: "A"
+                },
+                {
+                    id: 13,
+                    instruction: "Arrange the following sentences into a logical conversation.",
+                    sentences: [
+                        "a. Mark: Oh, you're right!",
+                        "b. Linda: Look at the sky. It's so dark.",
+                        "c. Mark: We should probably go inside soon.",
+                        "d. Linda: I think it's going to rain.",
+                        "e. Mark: Do you think so? The weather forecast said it would be sunny.",
+                        "f. Linda: Let's run home before it starts."
+                    ],
+                    options: {
+                        A: "b-d-e-a-c-f",
+                        B: "b-e-d-a-c-f",
+                        C: "b-d-a-e-c-f",
+                        D: "b-d-e-c-a-f"
+                    },
+                    correct: "A"
+                },
+                {
+                    id: 14,
+                    instruction: "Arrange the following sentences into a logical conversation.",
+                    sentences: [
+                        "a. Lisa: I saw a great movie last night.",
+                        "b. Tom: Was it good?",
+                        "c. Lisa: Yes, it was a comedy. I laughed so much!",
+                        "d. Tom: I need a good laugh. What was it called?",
+                        "e. Lisa: \"The Funny Adventures.\"",
+                        "f. Tom: Hi, Lisa. What did you do yesterday?"
+                    ],
+                    options: {
+                        A: "f-a-c-b-d-e",
+                        B: "f-a-b-c-d-e",
+                        C: "a-f-b-c-d-e",
+                        D: "f-b-a-c-d-e"
+                    },
+                    correct: "B"
+                },
+                {
+                    id: 15,
+                    instruction: "Arrange the following sentences into a logical conversation.",
+                    sentences: [
+                        "a. Chris: I'm not sure. I can't decide between the blue one and the red one.",
+                        "b. Jane: The blue one looks better on you.",
+                        "c. Chris: Thanks! I'll take it then.",
+                        "d. Jane: Which shirt are you going to buy?",
+                        "e. Chris: What do you think?",
+                        "f. Jane: You're welcome."
+                    ],
+                    options: {
+                        A: "d-a-e-b-c-f",
+                        B: "d-a-b-e-c-f",
+                        C: "d-e-a-b-c-f",
+                        D: "d-a-e-b-f-c"
+                    },
+                    correct: "A"
+                }
+            ];
+
+            const quizContainer = document.getElementById('quiz-container');
+            const submitButton = document.getElementById('submit-btn');
+            const resultsContainer = document.getElementById('results');
+            const scoreText = document.getElementById('score-text');
+            const modal = document.getElementById('custom-modal');
+            const modalText = document.getElementById('modal-text');
+            const closeModalBtn = document.getElementById('close-modal-btn');
+            const userAnswers = {};
+
+            // Function to show the custom modal
+            function showModal(message) {
+                modalText.textContent = message;
+                modal.classList.add('active');
+            }
+
+            // Function to hide the custom modal
+            closeModalBtn.addEventListener('click', () => {
+                modal.classList.remove('active');
+            });
+
+            // Function to render the quiz questions
+            function renderQuiz() {
+                quizData.forEach((question, index) => {
+                    const questionCard = document.createElement('div');
+                    questionCard.className = 'question-card';
+                    questionCard.dataset.index = index;
+
+                    const instruction = document.createElement('p');
+                    instruction.className = 'text-gray-700 mb-4 text-sm';
+                    instruction.textContent = question.instruction;
+                    questionCard.appendChild(instruction);
+
+                    const sentenceList = document.createElement('ul');
+                    sentenceList.className = 'list-disc list-inside mb-4 text-gray-800';
+                    question.sentences.forEach(sentence => {
+                        const li = document.createElement('li');
+                        li.textContent = sentence;
+                        sentenceList.appendChild(li);
+                    });
+                    questionCard.appendChild(sentenceList);
+
+                    const optionsDiv = document.createElement('div');
+                    optionsDiv.className = 'grid grid-cols-1 md:grid-cols-2 gap-3 mt-4';
+                    Object.keys(question.options).forEach(optionKey => {
+                        const optionElement = document.createElement('div');
+                        optionElement.className = 'option bg-white hover:bg-gray-100 border-gray-300 text-gray-800';
+                        optionElement.dataset.option = optionKey;
+                        optionElement.textContent = `${optionKey}. ${question.options[optionKey]}`;
+                        optionsDiv.appendChild(optionElement);
+
+                        optionElement.addEventListener('click', () => {
+                            // Remove selected class from other options in the same card
+                            const otherOptions = optionsDiv.querySelectorAll('.option');
+                            otherOptions.forEach(opt => opt.classList.remove('selected'));
+                            // Add selected class to the clicked option
+                            optionElement.classList.add('selected');
+                            // Store the user's answer
+                            userAnswers[index] = optionKey;
+                        });
+                    });
+                    questionCard.appendChild(optionsDiv);
+                    quizContainer.appendChild(questionCard);
+                });
+            }
+
+            // Function to calculate and display the score
+            submitButton.addEventListener('click', () => {
+                let score = 0;
+                let allAnswered = Object.keys(userAnswers).length === quizData.length;
+
+                if (!allAnswered) {
+                    showModal("Please answer all questions before submitting.");
+                    return;
+                }
+
+                // Check answers and update colors
+                quizData.forEach((question, index) => {
+                    const questionCard = document.querySelector(`.question-card[data-index='${index}']`);
+                    const options = questionCard.querySelectorAll('.option');
+                    const userAnswer = userAnswers[index];
+                    const correctAnswer = question.correct;
+
+                    if (userAnswer === correctAnswer) {
+                        score++;
+                    }
+
+                    options.forEach(option => {
+                        const optionKey = option.dataset.option;
+                        option.style.pointerEvents = 'none'; // Disable clicking after submission
+                        
+                        if (optionKey === correctAnswer) {
+                            option.classList.add('correct');
+                        } else if (optionKey === userAnswer && userAnswer !== correctAnswer) {
+                            option.classList.add('incorrect');
+                        }
+                        
+                        // Remove the 'selected' class that changes color on click
+                        option.classList.remove('selected');
+                    });
+                });
+
+                // Display the score
+                scoreText.textContent = `${score}/15`;
+                resultsContainer.classList.remove('hidden');
+                submitButton.style.display = 'none'; // Hide the submit button
+            });
+
+            // Initial rendering of the quiz
+            renderQuiz();
+        });
+    </script>
+
+</body>
+</html>
